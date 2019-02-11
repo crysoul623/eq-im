@@ -9,8 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.tutorila.im.message.server.MessageServer;
 
-import io.netty.channel.ChannelFuture;
-
 @SpringBootApplication
 public class MessageApplication implements CommandLineRunner {
 	
@@ -23,17 +21,9 @@ public class MessageApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println("start...");
-		InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8080);
-        ChannelFuture future = messageServer.run(address);
-        //hook
-        Runtime.getRuntime().addShutdownHook(new Thread(){
-            @Override
-            public void run() {
-            	messageServer.destroy();
-            }
-        });
-        future.channel().closeFuture().syncUninterruptibly();
+		System.out.println("server start...");
+		//start
+        messageServer.run(new InetSocketAddress("127.0.0.1", 8080));
 	}
 
 }
