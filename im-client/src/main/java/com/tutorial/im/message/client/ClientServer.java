@@ -4,16 +4,19 @@
 package com.tutorial.im.message.client;
 
 import java.net.InetSocketAddress;
+import java.util.Scanner;
 
 import org.springframework.stereotype.Component;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,6 +29,7 @@ public class ClientServer {
     
     public void run(InetSocketAddress address) throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
+        Scanner scanner = new Scanner(System.in);
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
@@ -41,11 +45,21 @@ public class ClientServer {
                     });
             //bind
             ChannelFuture future = bootstrap.connect().sync();
-            future.channel().closeFuture().sync();
+            
+            while(true){
+                String input = scanner.nextLine();
+                if("quit".equals(input)) {
+                	break;
+                }
+                //发送请求
+                future.channel().writeAndFlush(Unpooled.copiedBuffer(input, CharsetUtil.UTF_8));
+            }
+            //future.channel().closeFuture().sync();
         } catch (Exception e) {
             log.error("Client server start error:", e);
         } finally {
         	group.shutdownGracefully().sync();
+        	scanner.close();
         }
     }
 
