@@ -3,24 +3,32 @@
  */
 package com.tutorila.im.message.server;
 
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.CharsetUtil;
+import io.netty.util.concurrent.GlobalEventExecutor;
 
 /**
  * @author PANZERS
  *
  */
 public class MessageHandler extends SimpleChannelInboundHandler<ByteBuf> {
+	
+	private static DefaultChannelGroup defaultChannelGroup = new DefaultChannelGroup("channelGroup", GlobalEventExecutor.INSTANCE);
+	
+	@Override
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		defaultChannelGroup.add(ctx.channel());
+	}
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf buff) throws Exception {
-		System.out.println("Welcome to Netty world.");
-		Channel channel = ctx.channel();
-		channel.writeAndFlush(Unpooled.copiedBuffer("GoodBye.", CharsetUtil.UTF_8));
+		//ctx.channel().writeAndFlush(Unpooled.copiedBuffer(String.valueOf(buff.writerIndex()), CharsetUtil.UTF_8));
+		defaultChannelGroup.writeAndFlush(Unpooled.copiedBuffer(String.valueOf(buff.writerIndex()), CharsetUtil.UTF_8), channel -> !channel.id().equals(ctx.channel().id()));
 	}
 	
 	@Override
