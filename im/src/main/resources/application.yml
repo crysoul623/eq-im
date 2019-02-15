@@ -1,0 +1,7 @@
+message:
+  server:
+    url: 127.0.0.1
+    port: 8080
+    
+zookeeper:
+  connection: 192.168.9.81:2181
